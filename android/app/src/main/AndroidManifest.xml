@@ -1,13 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+   <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="gps_map"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-
-         <meta-data android:name="com.google.android.geo.
-         API_KEY"
-            android:value="YOUR KEY HERE"/>
+       <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCQV0GS-f3LsrSOASXrM-cEf-j_xs0BbCo"/>
 
 
         <activity
