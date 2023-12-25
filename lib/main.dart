@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
-
 void main() {
   runApp(const MyApp());
 }
@@ -36,10 +35,7 @@ class MapSampleState extends State<GpsMapApp> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
-
   CameraPosition? _initialCameraPosition;
-
-
 
   @override
   void initState() {
@@ -49,55 +45,47 @@ class MapSampleState extends State<GpsMapApp> {
   } // 최초 한번만 실행하면 되기 때문에 _determinePosition()을 넣어야 하지만, future다 -> initState에서는 async - await이 불가능 하기에
   // 새로운 함수를 생성하여 그 함수를 넣어주기.
 
-
   Future init() async {
- final position = await _determinePosition();
+    final position = await _determinePosition();
 
- _initialCameraPosition = CameraPosition(
-     target: LatLng (position.latitude, position.longitude),
- zoom: 17,);
+    _initialCameraPosition = CameraPosition(
+      target: LatLng(position.latitude, position.longitude),
+      zoom: 17,
+    );
 
- setState(() {
+    setState(() {});
 
- });
+    const locationSettings = LocationSettings();
+    Geolocator.getPositionStream(locationSettings: locationSettings)
+    .listen((Position position) {_moveCamera(position);
 
-
+    });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _initialCameraPosition == null ?
-          const Center(child:  CircularProgressIndicator())
-      :
+      body: _initialCameraPosition == null
+          ? const Center(child: CircularProgressIndicator())
+          : GoogleMap(
+              mapType: MapType.hybrid,
+              initialCameraPosition: _initialCameraPosition!,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+            ),
 
-      GoogleMap(
-        mapType: MapType.hybrid,
-        initialCameraPosition: _initialCameraPosition!,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: const Text('To the lake!'),
-        icon: const Icon(Icons.directions_boat),
-      ),
     );
   }
 
-  Future<void> _goToTheLake() async {
+  Future<void> _moveCamera(Position position) async {
     final GoogleMapController controller = await _controller.future;
-    final position = await Geolocator.getCurrentPosition();
-    final cameraPosition = CameraPosition(target: LatLng(position.latitude, position.longitude),
-      zoom: 18,
+    final cameraPosition = CameraPosition(
+      target: LatLng(position.latitude, position.longitude),
+      zoom: 17,
     );
-    await controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-
-
-
+    await controller
+        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
   Future<Position> _determinePosition() async {
@@ -125,6 +113,4 @@ class MapSampleState extends State<GpsMapApp> {
 
     return await Geolocator.getCurrentPosition();
   }
-
-
 }
