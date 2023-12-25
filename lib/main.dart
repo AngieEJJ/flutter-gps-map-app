@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import 'package:geolocator/geolocator.dart';
 
 
@@ -48,6 +47,24 @@ class MapSampleState extends State<GpsMapApp> {
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
 
+
+  @override
+  void initState() {
+    super.initState();
+
+    init();
+  } // 최초 한번만 실행하면 되기 때문에 _determinePosition()을 넣어야 하지만, future다 -> initState에서는 async - await이 불가능 하기에
+  // 새로운 함수를 생성하여 그 함수를 넣어주기.
+
+
+  Future init() async {
+ final position = await _determinePosition();
+
+ print(position.toString());
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +85,14 @@ class MapSampleState extends State<GpsMapApp> {
 
   Future<void> _goToTheLake() async {
     final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+    final position = await Geolocator.getCurrentPosition();
+    final cameraPosition = CameraPosition(target: LatLng(position.latitude, position.longitude),
+      zoom: 18,
+    );
+    await controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+
+
   }
 
   Future<Position> _determinePosition() async {
